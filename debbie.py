@@ -98,7 +98,6 @@ def run(
         shuffle(packages)
 
     for package, top_lang, version, dpage in tqdm([p.values() for p in packages]):
-        print(package, top_lang, version, dpage)
         try:
             if debs:
                 pkgpath = target / package
