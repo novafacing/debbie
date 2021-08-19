@@ -1,4 +1,4 @@
 tqdm
 requests
 beautifulsoup4
-deb-dpkg-tools
+deb-pkg-tools
