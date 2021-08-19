@@ -1,36 +1,30 @@
-from ast import Assert
-import requests
-import tarfile
 import argparse
-
-from bs4 import BeautifulSoup
-from tqdm import tqdm
-from json import dumps, loads
-from random import shuffle
-from pathlib import Path
-from uuid import uuid4
-from urllib.request import urlretrieve
-from typing import List, Optional, Dict
-from logging import getLogger, basicConfig, INFO
+import tarfile
+from ast import Assert
 from itertools import chain
-from deb_pkg_tools.package import find_object_files
+from json import dumps, loads
+from logging import INFO, basicConfig, getLogger
+from pathlib import Path
+from random import shuffle
 from subprocess import DEVNULL, STDOUT, check_call
+from typing import Dict, List, Optional
+from urllib.request import urlretrieve
+from uuid import uuid4
 
+import requests
+from bs4 import BeautifulSoup
+from deb_pkg_tools.package import find_object_files
+from tqdm import tqdm
 
-from langs import LANGS, LANG_MAPS
-from endpoints import (
-    ALL_PKGS,
-    PKG_INFO,
-    PKG_VERSION,
-    PKG_SRC,
-    PKG_DEB,
-    PKG_FTP_NAME,
-)
+from endpoints import (ALL_PKGS, PKG_DEB, PKG_FTP_NAME, PKG_INFO, PKG_SRC,
+                       PKG_VERSION)
+from langs import LANG_MAPS, LANGS
 
-basicConfig(format='%(asctime)s - %(message)s', level=INFO)
+basicConfig(format="%(asctime)s - %(message)s", level=INFO)
 logger = getLogger(__name__)
 
-def dl_deb(package: str, target: Path) -> str: 
+
+def dl_deb(package: str, target: Path) -> str:
     dl_page = requests.get(PKG_DEB.format(package))
     s = BeautifulSoup(dl_page.text, "html.parser")
     hrefs = list(
@@ -46,12 +40,11 @@ def dl_deb(package: str, target: Path) -> str:
     else:
         return ""
 
-    
 
 def get_metadata(langs: List[str]) -> List[Dict[str, str]]:
     """
     Get metadata for all packages matching any of the provided languages.
-    
+
     :param langs: List of permitted languages. Filtered by dominant language
         in the project.
     """
@@ -85,7 +78,7 @@ def run(
     target: Path,
     keywords: List[str],
     sample_size: int,
-    debs: bool
+    debs: bool,
 ) -> None:
 
     if cache is None or not cache.exists():
@@ -95,7 +88,6 @@ def run(
     else:
         with open(cache, "r") as f:
             packages = loads(f.read())
-
 
     try:
         target.mkdir(parents=True, exist_ok=False)
@@ -115,8 +107,14 @@ def run(
                 pkgpath.mkdir(parents=True, exist_ok=True)
                 output = dl_deb(package, pkgpath)
                 if output:
-                    check_call(["dpkg-deb", "-xv",  f"{output}", f"{pkgpath}"], stdout=DEVNULL, stderr=DEVNULL)
-                    result.append((package, top_lang, version, dpage, find_object_files(pkgpath)))
+                    check_call(
+                        ["dpkg-deb", "-xv", f"{output}", f"{pkgpath}"],
+                        stdout=DEVNULL,
+                        stderr=DEVNULL,
+                    )
+                    result.append(
+                        (package, top_lang, version, dpage, find_object_files(pkgpath))
+                    )
             else:
                 dpcontent = requests.get(dpage)
                 s = BeautifulSoup(dpcontent.text, "html.parser")
@@ -139,11 +137,14 @@ def run(
                     tar.close()
 
                     res = 0
-                    ok_suffixes = list(chain.from_iterable(map(lambda l: LANGS[l], langs)))
+                    ok_suffixes = list(
+                        chain.from_iterable(map(lambda l: LANGS[l], langs))
+                    )
                     for fname in pkgpath.rglob("*"):
                         if (
                             fname.is_file()
-                            and "".join(map(lambda s: s.lower(), fname.suffixes)) in ok_suffixes
+                            and "".join(map(lambda s: s.lower(), fname.suffixes))
+                            in ok_suffixes
                         ):
                             with open(fname, "rb") as f:
                                 content = f.read()
@@ -226,5 +227,5 @@ if __name__ == "__main__":
         target=args.target,
         keywords=args.keywords,
         sample_size=args.sample_size,
-        debs=args.debs
+        debs=args.debs,
     )
