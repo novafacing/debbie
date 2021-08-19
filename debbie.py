@@ -1,13 +1,12 @@
 import argparse
 import tarfile
-from ast import Assert
 from itertools import chain
 from json import dumps, loads
 from logging import INFO, basicConfig, getLogger
 from pathlib import Path
 from random import shuffle
-from subprocess import DEVNULL, STDOUT, check_call
-from typing import Dict, List, Optional
+from subprocess import DEVNULL, check_call
+from typing import Dict, List
 from urllib.request import urlretrieve
 from uuid import uuid4
 
@@ -16,8 +15,7 @@ from bs4 import BeautifulSoup
 from deb_pkg_tools.package import find_object_files
 from tqdm import tqdm
 
-from endpoints import (ALL_PKGS, PKG_DEB, PKG_FTP_NAME, PKG_INFO, PKG_SRC,
-                       PKG_VERSION)
+from endpoints import ALL_PKGS, PKG_DEB, PKG_FTP_NAME, PKG_INFO, PKG_SRC, PKG_VERSION
 from langs import LANG_MAPS, LANGS
 
 basicConfig(format="%(asctime)s - %(message)s", level=INFO)
