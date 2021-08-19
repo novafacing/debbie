@@ -1,0 +1,6 @@
+ALL_PKGS = "https://sources.debian.org/api/list"
+PKG_VERSION = "https://sources.debian.org/api/src/{}/"
+PKG_INFO = "https://sources.debian.org/api/info/package/{}/{}/"
+PKG_SRC = "https://packages.debian.org/source/{}/{}"
+PKG_DEB = "https://packages.debian.org/jessie/amd64/{}/download"
+PKG_FTP_NAME = "ftp.us.debian.org/debian"
